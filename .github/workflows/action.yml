@@ -1,0 +1,23 @@
+name: 'Exchange Info Bot'
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v1
+      - name: 'Push Exchange Info'
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+          API_SECRET: ${{ secrets.API_SECRET }}
+          COIN_LIST: ${{ secrets.COIN_LIST }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+        run: |
+          sudo apt install python3 python3-pip -y
+          pip3 install requests ciso8601 python-telegram-bot -y
+          python3 main.py
