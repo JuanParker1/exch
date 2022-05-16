@@ -4,12 +4,16 @@ on:
   schedule:
     - cron: '*/30 * * * *'
 
+  # Allows to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
 jobs:
-  bot:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: 'Checkout code'
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v3
+
       - name: 'Push Exchange Info'
         env:
           API_KEY: ${{ secrets.API_KEY }}
@@ -19,5 +23,5 @@ jobs:
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
         run: |
           sudo apt install python3 python3-pip -y
-          pip3 install requests ciso8601 python-telegram-bot -y
+          pip3 install requests ciso8601 python-telegram-bot
           python3 main.py
