@@ -21,6 +21,7 @@ jobs:
           COIN_LIST: ${{ secrets.COIN_LIST }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+          SUBACCOUNT_NAME_LIST: ${{ secrets.SUBACCOUNT_NAME_LIST }}
         run: |
           sudo apt install python3 python3-pip -y
           pip3 install requests ciso8601 python-telegram-bot

@@ -4,19 +4,27 @@ import datetime
 import os
 
 
-def get_total_val(cli: client.FtxClient):
-    return "totalAccountValue={}\n".format(
-        cli.get_account_info()["totalAccountValue"])
+def get_total_val(main_client: client.FtxClient) -> str:
+    totalAccountValue = float(
+        main_client.get_account_info()["totalAccountValue"])
+    for subaccount_name in os.environ["SUBACCOUNT_NAME_LIST"].split(','):
+        cli = client.FtxClient(os.environ["API_KEY"], os.environ["API_SECRET"],
+                               subaccount_name)
+        totalAccountValue += float(cli.get_account_info()["totalAccountValue"])
+    return "totalAccountValue={}\n".format(round(totalAccountValue, 2))
 
 
-def get_coin_info(cli: client.FtxClient, perp_str: str):
+def get_coin_info(cli: client.FtxClient, perp_str: str) -> str:
     perp = cli.get_future(perp_str)
-    coin = "{}\nlast={}\nchange1h={}\nchange24h={}\n".format(
-        perp_str, perp["last"], perp["change1h"], perp["change24h"])
+    change1h = float(perp["change1h"])
+    change24h = float(perp["change24h"])
+    coin = "{}\nlast={}\nchange1h={}%\nchange24h={}%\n".format(
+        perp_str, perp["last"], round(change1h * 100, 2),
+        round(change24h * 100, 2))
     return coin
 
 
-def get_exchange_info():
+def get_exchange_info() -> str:
     cli = client.FtxClient(os.environ["API_KEY"], os.environ["API_SECRET"],
                            None)
     account = get_total_val(cli)
@@ -27,7 +35,7 @@ def get_exchange_info():
     return res.strip()
 
 
-def get_sh_time():
+def get_sh_time() -> str:
     sh_tz = datetime.timezone(datetime.timedelta(hours=8),
                               name="Asia/Shanghai")
     return datetime.datetime.utcnow().replace(
