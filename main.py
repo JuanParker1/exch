@@ -14,13 +14,23 @@ def get_total_val(main_client: client.FtxClient) -> str:
     return "totalAccountValue={}\n".format(round(totalAccountValue, 2))
 
 
+def get_change_percent(title: str, num: float) -> str:
+    title_prefix = title + "="
+    title_postfix = "%"
+    bold_char = "*"
+    if num < 0.0:
+        title_prefix += bold_char
+        title_postfix = bold_char + title_postfix
+    return "{}{}{}".format(title_prefix, round(num * 100, 2), title_postfix)
+
+
 def get_coin_info(cli: client.FtxClient, perp_str: str) -> str:
     perp = cli.get_future(perp_str)
-    change1h = float(perp["change1h"])
-    change24h = float(perp["change24h"])
-    coin = "{}\nlast={}\nchange1h={}%\nchange24h={}%\n".format(
-        perp_str, perp["last"], round(change1h * 100, 2),
-        round(change24h * 100, 2))
+    bold_perp_str = "*" + perp_str + "*"
+    change1h_str = get_change_percent("change1h", float(perp["change1h"]))
+    change24h_str = get_change_percent("change24h", float(perp["change24h"]))
+    coin = "{}\nlast={}\n{}\n{}\n".format(bold_perp_str, perp["last"],
+                                          change1h_str, change24h_str)
     return coin
 
 
@@ -46,4 +56,5 @@ def get_sh_time() -> str:
 if __name__ == "__main__":
     bot = telegram.Bot(token=os.environ["BOT_TOKEN"])
     bot.send_message(chat_id=os.environ["CHANNEL_ID"],
-                     text=get_sh_time() + '\n' + get_exchange_info())
+                     text=get_sh_time() + '\n' + get_exchange_info(),
+                     parse_mode=telegram.ParseMode.MARKDOWN)
